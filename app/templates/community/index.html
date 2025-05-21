@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 text-center mb-5">
+        <h1>Community</h1>
+        <p class="lead">Connect with others on their health and fitness journey</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Share Your Journey</h5>
+                <form id="postForm" method="POST" action="{{ url_for('community.create_post') }}">
+                    <div class="mb-3">
+                        <label for="post_content" class="form-label">What's on your mind?</label>
+                        <textarea class="form-control" id="post_content" name="content" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Share</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Recent Community Posts</h5>
+                <div id="community-posts">
+                    <p class="text-center text-muted">Loading community posts...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Placeholder for loading community posts
+    const postsContainer = document.getElementById('community-posts');
+    postsContainer.innerHTML = '<p class="text-center">Community features coming soon!</p>';
+});
+</script>
+{% endblock %} 

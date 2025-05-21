@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Workout History</h1>
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Your Past Workouts</h5>
+                    
+                    {% if plans %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Day</th>
+                                    <th>Type</th>
+                                    <th>Duration</th>
+                                    <th>Target Areas</th>
+                                    <th>Last Updated</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for plan in plans %}
+                                <tr>
+                                    <td>
+                                        {% if plan.day_of_week == 0 %}Monday
+                                        {% elif plan.day_of_week == 1 %}Tuesday
+                                        {% elif plan.day_of_week == 2 %}Wednesday
+                                        {% elif plan.day_of_week == 3 %}Thursday
+                                        {% elif plan.day_of_week == 4 %}Friday
+                                        {% elif plan.day_of_week == 5 %}Saturday
+                                        {% else %}Sunday{% endif %}
+                                    </td>
+                                    <td>{{ plan.workout_type }}</td>
+                                    <td>{{ plan.duration }} minutes</td>
+                                    <td>{{ plan.target_areas|join(', ') }}</td>
+                                    <td>{{ plan.updated_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info" onclick="viewPlan({{ plan.day_of_week }})">View</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-center">No workout plans found. <a href="{{ url_for('workout.index') }}">Generate a new plan</a></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="planModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Workout Plan Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="planDetails">
+                Loading...
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function viewPlan(day) {
+    const modal = new bootstrap.Modal(document.getElementById('planModal'));
+    modal.show();
+    
+    try {
+        const response = await fetch(`{{ url_for('workout.generate') }}?day=${day}`);
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            document.getElementById('planDetails').innerHTML = `
+                <h6>Workout Type: ${result.data.workout_type}</h6>
+                <p><strong>Duration:</strong> ${result.data.duration} minutes</p>
+                <p><strong>Target Areas:</strong> ${result.data.target_areas.join(', ')}</p>
+                
+                <h6>Warm Up:</h6>
+                <ul>
+                    ${result.data.warm_up.map(ex => `
+                        <li>
+                            <strong>${ex.exercise}</strong> - ${ex.duration}<br>
+                            <small>${ex.instructions}</small>
+                        </li>
+                    `).join('')}
+                </ul>
+                
+                <h6>Main Workout:</h6>
+                <ul>
+                    ${result.data.main_workout.map(ex => `
+                        <li>
+                            <strong>${ex.exercise}</strong> - ${ex.sets} sets of ${ex.reps} reps<br>
+                            <small>Rest: ${ex.rest}</small><br>
+                            <small>${ex.instructions}</small><br>
+                            <small>Alternatives: ${ex.alternatives.join(', ')}</small>
+                        </li>
+                    `).join('')}
+                </ul>
+                
+                <h6>Cool Down:</h6>
+                <ul>
+                    ${result.data.cool_down.map(ex => `
+                        <li>
+                            <strong>${ex.exercise}</strong> - ${ex.duration}<br>
+                            <small>${ex.instructions}</small>
+                        </li>
+                    `).join('')}
+                </ul>
+                
+                <p><strong>Notes:</strong> ${result.data.notes}</p>
+            `;
+        } else {
+            document.getElementById('planDetails').innerHTML = `<p class="text-danger">Error: ${result.message}</p>`;
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('planDetails').innerHTML = '<p class="text-danger">Error retrieving workout plan</p>';
+    }
+}
+</script>
+{% endblock %} 

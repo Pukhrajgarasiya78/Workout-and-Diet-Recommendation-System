@@ -1,0 +1,1 @@
+# This file is intentionally empty since we're using MongoDB and the models are defined in their respective files 

@@ -1,0 +1,177 @@
+<!-- Log Meal Modal -->
+<div class="modal fade" id="logMealModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Log Food</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="logMealForm">
+                    <div class="mb-3">
+                        <label for="mealType" class="form-label">Meal Type</label>
+                        <select class="form-select" id="mealType" name="meal_type" required>
+                            <option value="Breakfast">Breakfast</option>
+                            <option value="Lunch">Lunch</option>
+                            <option value="Dinner">Dinner</option>
+                            <option value="Snack">Snack</option>
+                        </select>
+                    </div>
+                    <div id="foodItemsContainer">
+                        <!-- Template for food item entry -->
+                        <div class="food-item-entry mb-4">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <label class="form-label">Food Item</label>
+                                    <input type="text" class="form-control food-item" name="food_items[]" 
+                                           list="commonFoods" required>
+                                    <datalist id="commonFoods">
+                                        <option value="Roti">Indian flatbread (no unit needed)</option>
+                                        <option value="Chapati">Indian flatbread (no unit needed)</option>
+                                        <option value="Rice">Cooked white/brown rice</option>
+                                        <option value="Dal">Lentil curry</option>
+                                        <option value="Sabzi">Mixed vegetables</option>
+                                        <option value="Chicken Curry">Chicken curry</option>
+                                        <option value="Paneer">Cottage cheese curry</option>
+                                        <option value="Curd">Plain yogurt</option>
+                                        <option value="Milk">Regular milk</option>
+                                        <option value="Egg">Boiled/cooked egg (no unit needed)</option>
+                                        <option value="Bread">Bread slice (no unit needed)</option>
+                                        <option value="Banana">Medium size (no unit needed)</option>
+                                        <option value="Apple">Medium size (no unit needed)</option>
+                                    </datalist>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Quantity</label>
+                                    <input type="number" class="form-control quantity" name="quantities[]" 
+                                           min="0.1" step="0.1" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Unit</label>
+                                    <select class="form-select unit" name="units[]">
+                                        <option value="none">No Unit</option>
+                                        <option value="piece">Piece</option>
+                                        <option value="bowl">Bowl</option>
+                                        <option value="plate">Plate</option>
+                                        <option value="cup">Cup</option>
+                                        <option value="tablespoon">Tablespoon</option>
+                                        <option value="teaspoon">Teaspoon</option>
+                                        <option value="grams">Grams</option>
+                                        <option value="ml">ML</option>
+                                        <option value="scoop">Scoop</option>
+                                        <option value="serving">Serving</option>
+                                        <option value="glass">Glass</option>
+                                        <option value="katori">Katori</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-danger btn-sm remove-food mt-2" style="display: none;">Remove Item</button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary mb-3" id="addFoodItem">Add Another Food Item</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" form="logMealForm" class="btn btn-primary">Log Food</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const foodItemsContainer = document.getElementById('foodItemsContainer');
+    const addFoodItemBtn = document.getElementById('addFoodItem');
+    
+    // Function to show/hide remove buttons based on number of food items
+    function updateRemoveButtons() {
+        const removeButtons = document.querySelectorAll('.remove-food');
+        removeButtons.forEach(button => {
+            button.style.display = removeButtons.length > 1 ? 'block' : 'none';
+        });
+    }
+    
+    // Function to handle unit visibility based on food item
+    function handleUnitVisibility(foodInput, unitSelect) {
+        const noUnitFoods = ['Roti', 'Chapati', 'Egg', 'Bread', 'Banana', 'Apple'];
+        if (noUnitFoods.includes(foodInput.value)) {
+            unitSelect.value = 'none';
+            unitSelect.disabled = true;
+        } else {
+            unitSelect.disabled = false;
+            if (unitSelect.value === 'none') {
+                unitSelect.value = 'piece';
+            }
+        }
+    }
+    
+    // Add event listener for food item changes
+    foodItemsContainer.addEventListener('change', function(e) {
+        if (e.target.classList.contains('food-item')) {
+            const foodItemEntry = e.target.closest('.food-item-entry');
+            const unitSelect = foodItemEntry.querySelector('.unit');
+            handleUnitVisibility(e.target, unitSelect);
+        }
+    });
+    
+    // Add new food item entry
+    addFoodItemBtn.addEventListener('click', function() {
+        const template = foodItemsContainer.querySelector('.food-item-entry').cloneNode(true);
+        template.querySelector('.food-item').value = '';
+        template.querySelector('.quantity').value = '';
+        template.querySelector('.unit').value = 'piece';
+        template.querySelector('.unit').disabled = false;
+        foodItemsContainer.appendChild(template);
+        updateRemoveButtons();
+    });
+    
+    // Remove food item entry
+    foodItemsContainer.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-food')) {
+            e.target.closest('.food-item-entry').remove();
+            updateRemoveButtons();
+        }
+    });
+    
+    // Handle form submission
+    document.getElementById('logMealForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = {
+            meal_type: document.getElementById('mealType').value,
+            food_items: [],
+            quantities: [],
+            units: []
+        };
+        
+        document.querySelectorAll('.food-item-entry').forEach(entry => {
+            formData.food_items.push(entry.querySelector('.food-item').value);
+            formData.quantities.push(entry.querySelector('.quantity').value);
+            formData.units.push(entry.querySelector('.unit').value);
+        });
+        
+        fetch('/log-meal', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                showAlert('Meal logged successfully!', 'success');
+                bootstrap.Modal.getInstance(document.getElementById('logMealModal')).hide();
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showAlert(data.message || 'Error logging meal', 'danger');
+            }
+        })
+        .catch(error => {
+            showAlert('Error logging meal', 'danger');
+            console.error('Error:', error);
+        });
+    });
+});
+</script> 

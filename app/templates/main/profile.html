@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - {{ current_user.username }}{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+                    url('https://static.vecteezy.com/system/resources/previews/039/295/261/non_2x/ai-generated-detailed-view-of-a-person-lifting-weights-in-a-gym-muscles-tensing-with-a-backdrop-of-exercise-equipment-and-blurred-movement-nearby-a-plate-of-healthy-food-emphasizing-nutrition-photo.jpeg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        min-height: 100vh;
+        padding: 0.5rem 0;
+    }
+
+    .profile-container {
+        position: relative;
+        z-index: 1;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
+    .profile-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        background: rgba(240, 240, 240, 0.95);
+        backdrop-filter: blur(10px);
+        margin-top: 0.5rem;
+    }
+
+    .profile-card .card-header {
+        background: linear-gradient(45deg, #0d6efd, #0099ff);
+        color: white;
+        border-radius: 15px 15px 0 0;
+        border: none;
+        padding: 0.75rem;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        padding: 0.4rem;
+        border-color: #dee2e6;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.9);
+    }
+
+    .form-control:focus {
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+        background: white;
+    }
+
+    .form-label {
+        color: #495057;
+        margin-bottom: 0.2rem;
+        font-weight: 500;
+        font-size: 0.85rem;
+    }
+
+    .form-select {
+        border-radius: 8px;
+        padding: 0.4rem;
+        border-color: #dee2e6;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.9);
+    }
+
+    .form-select:hover {
+        border-color: #0d6efd;
+    }
+
+    .form-select:focus {
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+        background: white;
+    }
+
+    .btn-update {
+        padding: 0.4rem 1.5rem;
+        font-size: 0.9rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        background: linear-gradient(45deg, #0d6efd, #0099ff);
+        border: none;
+        box-shadow: 0 4px 15px rgba(13, 110, 253, 0.2);
+    }
+
+    .btn-update:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(13, 110, 253, 0.3);
+    }
+
+    .page-title {
+        color: white;
+        text-align: center;
+        margin-bottom: 0.5rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .page-title h1 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .page-title p {
+        font-size: 0.9rem;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .form-section {
+        margin-bottom: 0.75rem;
+    }
+
+    .form-section-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #0d6efd;
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.25rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .card-body {
+        padding: 1rem !important;
+    }
+
+    .row {
+        margin-right: -0.5rem;
+        margin-left: -0.5rem;
+    }
+
+    .col-md-3, .col-md-4, .col-md-6 {
+        padding-right: 0.5rem;
+        padding-left: 0.5rem;
+    }
+</style>
+
+<div class="profile-container">
+    <div class="page-title">
+        <h1>Your Profile</h1>
+        <p>Manage your personal information and preferences</p>
+    </div>
+
+    <div class="card profile-card">
+        <div class="card-header">
+            <h3 class="card-title text-center mb-0">Profile Information</h3>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('main.update_profile') }}">
+                {{ form.hidden_tag() }}
+                
+                <div class="form-section">
+                    <div class="form-section-title">Basic Information</div>
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-control" value="{{ current_user.username }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            {{ form.email(class="form-control", value=current_user.email) }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">First Name</label>
+                            {{ form.first_name(class="form-control") }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Last Name</label>
+                            {{ form.last_name(class="form-control") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">Physical Information</div>
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <label class="form-label">Age</label>
+                            {{ form.age(class="form-control") }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Weight (kg)</label>
+                            {{ form.weight(class="form-control") }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Height (cm)</label>
+                            {{ form.height(class="form-control") }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Gender</label>
+                            {{ form.gender(class="form-select") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">Fitness & Diet Preferences</div>
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <label class="form-label">Activity Level</label>
+                            {{ form.activity_level(class="form-select") }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Fitness Goal</label>
+                            {{ form.fitness_goal(class="form-select") }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Dietary Preference</label>
+                            {{ form.dietary_preference(class="form-select") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">Health Information</div>
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label class="form-label">Health Conditions</label>
+                            {{ form.health_conditions(class="form-control", rows=2, placeholder="e.g., diabetes, hypertension") }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Dietary Restrictions</label>
+                            {{ form.dietary_restrictions(class="form-control", rows=2, placeholder="e.g., gluten-free, no nuts") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-2">
+                    <button type="submit" class="btn btn-primary btn-update">
+                        <i class="fas fa-save me-2"></i>Update Profile
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,437 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Progress Overview Cards -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Today's Diet Progress</h5>
+                    <div class="progress mb-3" style="height: 25px;">
+                        <div id="calorieProgress" class="progress-bar bg-primary" role="progressbar" style="width: 0%">
+                            0/2000 calories
+                        </div>
+                    </div>
+                    <div id="dietGoalMessage" class="alert alert-success d-none">
+                        <i class="fas fa-check-circle"></i> Congrats! You have met your calorie goal today.
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted">Remaining: <span id="remainingCalories">2000</span> calories</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Today's Workout Progress</h5>
+                    <div class="progress mb-3" style="height: 25px;">
+                        <div id="workoutProgress" class="progress-bar bg-success" role="progressbar" style="width: 0%">
+                            0/60 minutes
+                        </div>
+                    </div>
+                    <div id="workoutGoalMessage" class="alert alert-success d-none">
+                        <i class="fas fa-check-circle"></i> Workout Goal Achieved! Well done!
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted">Remaining: <span id="remainingDuration">60</span> minutes</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="row">
+        <!-- Diet Tracking -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Diet Tracking</h5>
+                    <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#foodSuggestionsModal">
+                        <i class="fas fa-lightbulb"></i> Food Suggestions
+                    </button>
+                </div>
+                <div class="card-body">
+                    <!-- Quick Add Food Form -->
+                    <form id="quickFoodForm" class="mb-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <select class="form-select" id="quickFoodSelect">
+                                    <option value="">Select common food...</option>
+                                    <option value="chicken_breast">Chicken Breast (100g - 165 cal)</option>
+                                    <option value="rice">White Rice (100g - 130 cal)</option>
+                                    <option value="eggs">Eggs (1 large - 70 cal)</option>
+                                    <option value="banana">Banana (1 medium - 105 cal)</option>
+                                    <option value="milk">Milk (250ml - 122 cal)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="number" class="form-control" id="quickFoodQuantity" placeholder="Quantity" min="1" value="1">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100">Add</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Custom Food Form -->
+                    <form id="customFoodForm" class="mb-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <input type="text" class="form-control" id="foodName" placeholder="Food name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="number" class="form-control" id="calories" placeholder="Calories" required>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-outline-primary w-100">Log Custom Food</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Today's Food Log -->
+                    <h6>Today's Food Log</h6>
+                    <div id="foodLogList" class="list-group list-group-flush">
+                        <!-- Food logs will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workout Tracking -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Workout Tracking</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Quick Add Exercise Form -->
+                    <form id="quickExerciseForm" class="mb-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <select class="form-select" id="quickExerciseSelect">
+                                    <option value="">Select exercise...</option>
+                                    <option value="running">Running (10 cal/min)</option>
+                                    <option value="cycling">Cycling (8 cal/min)</option>
+                                    <option value="swimming">Swimming (12 cal/min)</option>
+                                    <option value="weightlifting">Weight Training (6 cal/min)</option>
+                                    <option value="yoga">Yoga (4 cal/min)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="number" class="form-control" id="exerciseDuration" placeholder="Minutes" min="1" required>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-success w-100">Add</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Custom Exercise Form -->
+                    <form id="customExerciseForm" class="mb-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <input type="text" class="form-control" id="exerciseName" placeholder="Exercise name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="number" class="form-control" id="duration" placeholder="Duration (min)" required>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-outline-success w-100">Log Custom Exercise</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Today's Exercise Log -->
+                    <h6>Today's Workout Log</h6>
+                    <div id="workoutLogList" class="list-group list-group-flush">
+                        <!-- Workout logs will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Food Suggestions Modal -->
+<div class="modal fade" id="foodSuggestionsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Food Suggestions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="foodSuggestions">
+                    <!-- Will be populated based on remaining calories -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Common food database
+const commonFoods = {
+    chicken_breast: { name: "Chicken Breast", calories: 165, protein: 31 },
+    rice: { name: "White Rice", calories: 130, protein: 2.7 },
+    eggs: { name: "Eggs", calories: 70, protein: 6 },
+    banana: { name: "Banana", calories: 105, protein: 1.3 },
+    milk: { name: "Milk", calories: 122, protein: 8.1 }
+};
+
+// Exercise calorie burn rates (calories per minute)
+const exerciseCalories = {
+    running: 10,
+    cycling: 8,
+    swimming: 12,
+    weightlifting: 6,
+    yoga: 4
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Load initial progress
+    loadTodayProgress();
+    
+    // Quick Food Form Handler
+    document.getElementById('quickFoodForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const foodId = document.getElementById('quickFoodSelect').value;
+        const quantity = parseInt(document.getElementById('quickFoodQuantity').value);
+        
+        if (foodId && quantity) {
+            const food = commonFoods[foodId];
+            const data = {
+                food_name: food.name,
+                portion_size: quantity,
+                calories: food.calories * quantity,
+                protein: food.protein * quantity
+            };
+            logFood(data);
+        }
+    });
+    
+    // Custom Food Form Handler
+    document.getElementById('customFoodForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const data = {
+            food_name: document.getElementById('foodName').value,
+            portion_size: 1,
+            calories: parseInt(document.getElementById('calories').value),
+            protein: 0 // Default value since we're simplifying input
+        };
+        logFood(data);
+    });
+    
+    // Quick Exercise Form Handler
+    document.getElementById('quickExerciseForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const exerciseId = document.getElementById('quickExerciseSelect').value;
+        const duration = parseInt(document.getElementById('exerciseDuration').value);
+        
+        if (exerciseId && duration) {
+            const caloriesPerMinute = exerciseCalories[exerciseId];
+            const data = {
+                exercise_name: exerciseId.charAt(0).toUpperCase() + exerciseId.slice(1),
+                duration: duration,
+                calories_burned: caloriesPerMinute * duration,
+                completed: true
+            };
+            logWorkout(data);
+        }
+    });
+    
+    // Custom Exercise Form Handler
+    document.getElementById('customExerciseForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const duration = parseInt(document.getElementById('duration').value);
+        const data = {
+            exercise_name: document.getElementById('exerciseName').value,
+            duration: duration,
+            calories_burned: Math.round(duration * 5), // Default 5 calories per minute
+            completed: true
+        };
+        logWorkout(data);
+    });
+});
+
+function logFood(data) {
+    fetch('/api/diet/log', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.status === 'success') {
+            updateDietProgress(result.daily_total);
+            document.getElementById('customFoodForm').reset();
+            document.getElementById('quickFoodForm').reset();
+            loadTodayProgress();
+            updateFoodSuggestions(result.daily_total.remaining_calories);
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function logWorkout(data) {
+    fetch('/api/workout/log', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.status === 'success') {
+            updateWorkoutProgress(result.daily_total);
+            document.getElementById('customExerciseForm').reset();
+            document.getElementById('quickExerciseForm').reset();
+            loadTodayProgress();
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function loadTodayProgress() {
+    fetch('/api/progress/today')
+        .then(response => response.json())
+        .then(data => {
+            if (data.goals) {
+                updateDietProgress({
+                    calories: data.progress.diet.total_calories,
+                    remaining_calories: data.progress.diet.remaining_calories,
+                    target_met: data.progress.diet.target_met
+                });
+                
+                updateWorkoutProgress({
+                    duration: data.progress.workout.total_duration,
+                    remaining_duration: data.progress.workout.remaining_duration,
+                    target_met: data.progress.workout.target_met
+                });
+                
+                updateFoodLogList(data.logs.diet);
+                updateWorkoutLogList(data.logs.workout);
+                updateFoodSuggestions(data.progress.diet.remaining_calories);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function updateDietProgress(data) {
+    const targetCalories = 2000; // Should come from user's profile
+    const percentage = (data.calories / targetCalories) * 100;
+    
+    document.getElementById('calorieProgress').style.width = `${Math.min(percentage, 100)}%`;
+    document.getElementById('calorieProgress').textContent = `${data.calories}/${targetCalories} calories`;
+    document.getElementById('remainingCalories').textContent = data.remaining_calories;
+    
+    const goalMessage = document.getElementById('dietGoalMessage');
+    if (data.target_met) {
+        goalMessage.classList.remove('d-none');
+    } else {
+        goalMessage.classList.add('d-none');
+    }
+}
+
+function updateWorkoutProgress(data) {
+    const targetDuration = 60; // Should come from user's profile
+    const percentage = (data.duration / targetDuration) * 100;
+    
+    document.getElementById('workoutProgress').style.width = `${Math.min(percentage, 100)}%`;
+    document.getElementById('workoutProgress').textContent = `${data.duration}/${targetDuration} minutes`;
+    document.getElementById('remainingDuration').textContent = data.remaining_duration;
+    
+    const goalMessage = document.getElementById('workoutGoalMessage');
+    if (data.target_met) {
+        goalMessage.classList.remove('d-none');
+    } else {
+        goalMessage.classList.add('d-none');
+    }
+}
+
+function updateFoodLogList(logs) {
+    const container = document.getElementById('foodLogList');
+    container.innerHTML = logs.map(log => `
+        <div class="list-group-item">
+            <div class="d-flex w-100 justify-content-between">
+                <h6 class="mb-1">${log.food_name}</h6>
+                <span class="badge bg-primary">${log.calories} cal</span>
+            </div>
+            <small class="text-muted">
+                Portion: ${log.portion_size} | Protein: ${log.protein}g
+                <br>${new Date(log.created_at).toLocaleTimeString()}
+            </small>
+        </div>
+    `).join('');
+}
+
+function updateWorkoutLogList(logs) {
+    const container = document.getElementById('workoutLogList');
+    container.innerHTML = logs.map(log => `
+        <div class="list-group-item">
+            <div class="d-flex w-100 justify-content-between">
+                <h6 class="mb-1">${log.exercise_name}</h6>
+                <span class="badge bg-success">${log.duration} min</span>
+            </div>
+            <small class="text-muted">
+                Calories burned: ${log.calories_burned}
+                <br>${new Date(log.created_at).toLocaleTimeString()}
+            </small>
+        </div>
+    `).join('');
+}
+
+function updateFoodSuggestions(remainingCalories) {
+    const suggestions = document.getElementById('foodSuggestions');
+    if (remainingCalories <= 0) {
+        suggestions.innerHTML = `
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i> You've met your calorie goal for today!
+            </div>
+        `;
+        return;
+    }
+    
+    // Filter foods that fit within remaining calories
+    const suitableFoods = Object.values(commonFoods)
+        .filter(food => food.calories <= remainingCalories)
+        .sort((a, b) => b.protein - a.protein); // Sort by protein content
+    
+    if (suitableFoods.length === 0) {
+        suggestions.innerHTML = `
+            <div class="alert alert-info">
+                No single food item fits within your remaining ${remainingCalories} calories.
+                Consider splitting your remaining calories across multiple smaller portions.
+            </div>
+        `;
+        return;
+    }
+    
+    suggestions.innerHTML = `
+        <div class="alert alert-info">
+            You have ${remainingCalories} calories remaining. Here are some suggestions:
+        </div>
+        <div class="list-group">
+            ${suitableFoods.map(food => `
+                <div class="list-group-item">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">${food.name}</h6>
+                        <span class="badge bg-primary">${food.calories} cal</span>
+                    </div>
+                    <small class="text-muted">Protein: ${food.protein}g</small>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+</script>
+{% endblock %} 

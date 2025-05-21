@@ -1,0 +1,105 @@
+<!-- Update Progress Modal -->
+<div class="modal fade" id="updateProgressModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Progress</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="updateProgressForm">
+                    <div class="mb-3">
+                        <label class="form-label">Weight (kg)</label>
+                        <input type="number" class="form-control" name="weight" step="0.1" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Body Fat %</label>
+                                <input type="number" class="form-control" name="body_fat" step="0.1">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Muscle Mass (kg)</label>
+                                <input type="number" class="form-control" name="muscle_mass" step="0.1">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Waist (cm)</label>
+                                <input type="number" class="form-control" name="waist" step="0.1">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Chest (cm)</label>
+                                <input type="number" class="form-control" name="chest" step="0.1">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Arms (cm)</label>
+                                <input type="number" class="form-control" name="arms" step="0.1">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Thighs (cm)</label>
+                                <input type="number" class="form-control" name="thighs" step="0.1">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-control" name="notes" rows="2"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveProgressBtn">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('#saveProgressBtn').click(function() {
+        var formData = {};
+        $('#updateProgressForm').serializeArray().forEach(function(item) {
+            formData[item.name] = item.value;
+        });
+        
+        $.ajax({
+            url: '/update-progress',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
+            success: function(response) {
+                if (response.status === 'success') {
+                    location.reload();
+                }
+            }
+        });
+    });
+    
+    // Pre-fill form with latest progress data if available
+    {% if latest_progress %}
+    $('#updateProgressModal').on('show.bs.modal', function() {
+        $('input[name="weight"]').val('{{ latest_progress.weight }}');
+        $('input[name="body_fat"]').val('{{ latest_progress.body_fat }}');
+        $('input[name="muscle_mass"]').val('{{ latest_progress.muscle_mass }}');
+        $('input[name="waist"]').val('{{ latest_progress.waist }}');
+        $('input[name="chest"]').val('{{ latest_progress.chest }}');
+        $('input[name="arms"]').val('{{ latest_progress.arms }}');
+        $('input[name="thighs"]').val('{{ latest_progress.thighs }}');
+    });
+    {% endif %}
+});
+</script> 

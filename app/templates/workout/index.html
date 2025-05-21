@@ -1,0 +1,518 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .header-banner {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                    url('https://images.unsplash.com/photo-1579364046732-c21c2177730d?q=80&w=2070&auto=format&fit=crop');
+        background-size: cover;
+        background-position: center;
+        padding: 6rem 0;
+        margin-bottom: 3rem;
+        position: relative;
+    }
+
+    .page-title {
+        color: white;
+        text-align: center;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .page-title h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        letter-spacing: 1px;
+    }
+
+    .page-title p {
+        font-size: 1.2rem;
+        max-width: 600px;
+        margin: 0 auto;
+        opacity: 0.9;
+    }
+
+    body {
+        background-color: #f0f2f5;
+        min-height: 100vh;
+    }
+
+    .container {
+        position: relative;
+        z-index: 1;
+    }
+
+    .main-content {
+        margin-top: -2rem;
+    }
+
+    .card {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(10px);
+        margin-bottom: 2rem;
+        overflow: hidden;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #0d6efd, #0099ff);
+        color: white;
+        border-radius: 20px 20px 0 0;
+        border: none;
+        padding: 1.5rem;
+    }
+
+    .card-title {
+        margin-bottom: 0;
+        font-weight: 600;
+        font-size: 1.4rem;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .form-control, .form-select {
+        border-radius: 12px;
+        padding: 0.8rem 1.2rem;
+        border: 2px solid #e1e5ea;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background-color: #f8f9fa;
+    }
+
+    .form-control:focus, .form-select:focus {
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+        border-color: #0d6efd;
+        background-color: #ffffff;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #344767;
+        margin-bottom: 0.7rem;
+        font-size: 1rem;
+    }
+
+    .btn {
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        font-size: 1rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #0d6efd, #0099ff);
+        border: none;
+        box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(13, 110, 253, 0.4);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    #planDisplay {
+        display: none;
+    }
+
+    .exercise-card {
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+        margin-bottom: 1.5rem;
+        background: #ffffff;
+    }
+
+    .exercise-card .card-header {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        color: #344767;
+        padding: 1rem 1.5rem;
+    }
+
+    .exercise-card .card-body {
+        padding: 1.5rem;
+    }
+
+    .exercise-card h6 {
+        color: #0d6efd;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .badge {
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        border-radius: 8px;
+    }
+
+    .alert {
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+    }
+
+    .spinner-border {
+        margin-right: 0.5rem;
+    }
+</style>
+
+<div class="header-banner">
+    <div class="container">
+        <div class="page-title">
+            <h1>Workout Plan Generator</h1>
+            <p>Create your personalized workout plan based on your goals and preferences</p>
+        </div>
+    </div>
+</div>
+
+<div class="container main-content">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Generate New Workout Plan</h5>
+                </div>
+                <div class="card-body">
+                    <form id="workoutForm" action="{{ url_for('workout.generate') }}" method="POST">
+                        <div class="form-group mb-3">
+                            <label class="form-label" for="day">Day of Week:</label>
+                            <select class="form-select" id="day" name="day" required>
+                                <option value="0">Monday</option>
+                                <option value="1">Tuesday</option>
+                                <option value="2">Wednesday</option>
+                                <option value="3">Thursday</option>
+                                <option value="4">Friday</option>
+                                <option value="5">Saturday</option>
+                                <option value="6">Sunday</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label" for="goal">Fitness Goal:</label>
+                            <select class="form-select" id="goal" name="goal" required>
+                                <option value="weight_loss">Weight Loss</option>
+                                <option value="muscle_gain">Muscle Gain</option>
+                                <option value="maintenance">General Fitness</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label" for="activity_level">Activity Level:</label>
+                            <select class="form-select" id="activity_level" name="activity_level" required>
+                                <option value="beginner">Beginner</option>
+                                <option value="intermediate">Intermediate</option>
+                                <option value="advanced">Advanced</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label" for="equipment">Available Equipment:</label>
+                            <select class="form-select" id="equipment" name="equipment" required>
+                                <option value="none">No Equipment (Bodyweight Only)</option>
+                                <option value="basic">Basic Equipment (Dumbbells, Resistance Bands)</option>
+                                <option value="full">Full Gym Access</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100" id="generateBtn">
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                            Generate Workout Plan
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">View Existing Plan</h5>
+                </div>
+                <div class="card-body">
+                    <form id="viewForm" action="{{ url_for('workout.generate') }}" method="GET">
+                        <div class="form-group mb-3">
+                            <label class="form-label" for="view_day">Day of Week:</label>
+                            <select class="form-select" id="view_day" name="day" required>
+                                <option value="0">Monday</option>
+                                <option value="1">Tuesday</option>
+                                <option value="2">Wednesday</option>
+                                <option value="3">Thursday</option>
+                                <option value="4">Friday</option>
+                                <option value="5">Saturday</option>
+                                <option value="6">Sunday</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-secondary w-100" id="viewBtn">
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                            View Plan
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Workout History</h5>
+                </div>
+                <div class="card-body text-center">
+                    <a href="{{ url_for('workout.history') }}" class="btn btn-info">
+                        <i class="fas fa-history me-2"></i>View History
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="planDisplay" class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Your Workout Plan</h5>
+                </div>
+                <div class="card-body">
+                    <div id="planContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const workoutForm = document.getElementById('workoutForm');
+    const viewForm = document.getElementById('viewForm');
+    const generateBtn = document.getElementById('generateBtn');
+    const viewBtn = document.getElementById('viewBtn');
+    const planDisplay = document.getElementById('planDisplay');
+    const planContent = document.getElementById('planContent');
+
+    function showLoading(button) {
+        const spinner = button.querySelector('.spinner-border');
+        spinner.classList.remove('d-none');
+        button.disabled = true;
+    }
+
+    function hideLoading(button) {
+        const spinner = button.querySelector('.spinner-border');
+        spinner.classList.add('d-none');
+        button.disabled = false;
+    }
+
+    function displayPlan(plan) {
+        if (!plan || !plan.exercises) {
+            planContent.innerHTML = '<div class="alert alert-danger">Failed to generate workout plan. Please try again.</div>';
+            planDisplay.style.display = 'block';
+            return;
+        }
+
+        let html = `
+            <div class="workout-summary mb-4">
+                <h4 class="mb-3">Workout Summary</h4>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5>Duration</h5>
+                                <h3>${plan.total_duration} min</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5>Difficulty</h5>
+                                <h3>${plan.difficulty_level}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5>Calories Burned</h5>
+                                <h3>${plan.estimated_calories} kcal</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        plan.exercises.forEach(exercise => {
+            html += `
+                <div class="exercise-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">${exercise.name}</h5>
+                        <small class="text-muted">${exercise.category} • ${exercise.difficulty}</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="exercise-stats mb-3">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <strong>Sets:</strong> ${exercise.sets}
+                                </div>
+                                <div class="col-md-3">
+                                    <strong>Reps:</strong> ${exercise.reps}
+                                </div>
+                                <div class="col-md-3">
+                                    <strong>Duration:</strong> ${exercise.duration} sec
+                                </div>
+                                <div class="col-md-3">
+                                    <strong>Rest:</strong> ${exercise.rest_time} sec
+                                </div>
+                            </div>
+                        </div>
+                        <div class="exercise-description mb-3">
+                            <strong>Description:</strong>
+                            <p>${exercise.description}</p>
+                        </div>
+                        ${exercise.instructions ? `
+                            <div class="exercise-instructions mb-3">
+                                <strong>Instructions:</strong>
+                                <ol>
+                                    ${exercise.instructions.map(instruction => `
+                                        <li>${instruction}</li>
+                                    `).join('')}
+                                </ol>
+                            </div>
+                        ` : ''}
+                        ${exercise.tips ? `
+                            <div class="exercise-tips">
+                                <strong>Tips:</strong>
+                                <ul>
+                                    ${exercise.tips.map(tip => `
+                                        <li>${tip}</li>
+                                    `).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        });
+
+        if (plan.warm_up) {
+            html += `
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Warm Up</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>${plan.warm_up}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        if (plan.cool_down) {
+            html += `
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Cool Down</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>${plan.cool_down}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        if (plan.notes) {
+            html += `
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Additional Notes</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>${plan.notes}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        planContent.innerHTML = html;
+        planDisplay.style.display = 'block';
+    }
+
+    workoutForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        showLoading(generateBtn);
+
+        try {
+            const formData = new FormData(workoutForm);
+            const data = {
+                day: formData.get('day'),
+                goal: formData.get('goal'),
+                activity_level: formData.get('activity_level'),
+                equipment: formData.get('equipment')
+            };
+
+            const response = await fetch(workoutForm.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to generate workout plan');
+            }
+
+            const result = await response.json();
+            if (result.error) {
+                throw new Error(result.error);
+            }
+
+            displayPlan(result);
+        } catch (error) {
+            planContent.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+            planDisplay.style.display = 'block';
+        } finally {
+            hideLoading(generateBtn);
+        }
+    });
+
+    viewForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        showLoading(viewBtn);
+
+        try {
+            const formData = new FormData(viewForm);
+            const response = await fetch(`${viewForm.action}?day=${formData.get('day')}`, {
+                method: 'GET'
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to retrieve workout plan');
+            }
+
+            const result = await response.json();
+            if (result.error) {
+                throw new Error(result.error);
+            }
+
+            displayPlan(result);
+        } catch (error) {
+            planContent.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+            planDisplay.style.display = 'block';
+        } finally {
+            hideLoading(viewBtn);
+        }
+    });
+});
+</script>
+{% endblock %} 

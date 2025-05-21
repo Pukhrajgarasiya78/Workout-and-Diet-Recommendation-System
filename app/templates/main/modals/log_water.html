@@ -1,0 +1,47 @@
+<!-- Log Water Modal -->
+<div class="modal fade" id="logWaterModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Log Water Intake</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="logWaterForm">
+                    <div class="mb-3">
+                        <label for="waterAmount" class="form-label">Amount (ml)</label>
+                        <input type="number" class="form-control" id="waterAmount" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Log Water</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    // Quick preset buttons
+    $('.preset-water').click(function() {
+        $('input[name="amount"]').val($(this).data('amount'));
+    });
+    
+    $('#saveWaterBtn').click(function() {
+        var formData = {
+            amount: $('input[name="amount"]').val()
+        };
+        
+        $.ajax({
+            url: '/log-water',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
+            success: function(response) {
+                if (response.status === 'success') {
+                    location.reload();
+                }
+            }
+        });
+    });
+});
+</script> 

@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card mt-5">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Complete Your Profile</h2>
+                    <form method="POST" action="{{ url_for('auth.complete_profile') }}">
+                        {{ form.hidden_tag() }}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="first_name" class="form-label">First Name</label>
+                                {{ form.first_name(class="form-control", id="first_name") }}
+                                {% for error in form.first_name.errors %}
+                                <span class="text-danger">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="last_name" class="form-label">Last Name</label>
+                                {{ form.last_name(class="form-control", id="last_name") }}
+                                {% for error in form.last_name.errors %}
+                                <span class="text-danger">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="age" class="form-label">Age</label>
+                                {{ form.age(class="form-control", id="age") }}
+                                {% for error in form.age.errors %}
+                                <span class="text-danger">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="gender" class="form-label">Gender</label>
+                                {{ form.gender(class="form-select", id="gender") }}
+                                {% for error in form.gender.errors %}
+                                <span class="text-danger">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="weight" class="form-label">Weight (kg)</label>
+                                {{ form.weight(class="form-control", id="weight") }}
+                                {% for error in form.weight.errors %}
+                                <span class="text-danger">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="height" class="form-label">Height (cm)</label>
+                                {{ form.height(class="form-control", id="height") }}
+                                {% for error in form.height.errors %}
+                                <span class="text-danger">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="activity_level" class="form-label">Activity Level</label>
+                            {{ form.activity_level(class="form-select", id="activity_level") }}
+                            {% for error in form.activity_level.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="fitness_goal" class="form-label">Fitness Goal</label>
+                            {{ form.fitness_goal(class="form-select", id="fitness_goal") }}
+                            {% for error in form.fitness_goal.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="dietary_preference" class="form-label">Dietary Preference</label>
+                            {{ form.dietary_preference(class="form-select", id="dietary_preference") }}
+                            {% for error in form.dietary_preference.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="health_conditions" class="form-label">Health Conditions</label>
+                            {{ form.health_conditions(class="form-control", id="health_conditions", rows="3") }}
+                            <div class="form-text">List any health conditions, separated by commas</div>
+                            {% for error in form.health_conditions.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="d-grid gap-2">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

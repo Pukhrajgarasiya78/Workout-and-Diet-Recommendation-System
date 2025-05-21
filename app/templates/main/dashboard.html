@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Your Health Dashboard</h1>
+    
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Calories</h5>
+                    <p class="card-text">
+                        <span id="totalCalories">{{ total_intake.calories|default(0) }}</span> / 
+                        <span>{{ daily_goals.calories|default(2000) }}</span>
+                    </p>
+                    <div class="progress">
+                        <div id="caloriesProgress" class="progress-bar" role="progressbar" 
+                             style="width: {{ (total_intake.calories|default(0) / daily_goals.calories|default(2000) * 100)|round }}%">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Protein</h5>
+                    <p class="card-text">
+                        <span id="totalProtein">{{ total_intake.protein|default(0) }}</span>g / 
+                        <span>{{ daily_goals.protein|default(150) }}g</span>
+                    </p>
+                    <div class="progress">
+                        <div id="proteinProgress" class="progress-bar" role="progressbar" 
+                             style="width: {{ (total_intake.protein|default(0) / daily_goals.protein|default(150) * 100)|round }}%">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Workout Minutes</h5>
+                    <p class="card-text">
+                        <span id="totalWorkoutMinutes">{{ total_workout.duration|default(0) }}</span> / 
+                        <span>{{ daily_goals.workout_minutes|default(45) }}</span>
+                    </p>
+                    <div class="progress">
+                        <div id="workoutProgress" class="progress-bar" role="progressbar" 
+                             style="width: {{ (total_workout.duration|default(0) / daily_goals.workout_minutes|default(45) * 100)|round }}%">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Calories Burned</h5>
+                    <p class="card-text">
+                        <span id="totalCaloriesBurned">{{ total_workout.calories_burned|default(0) }}</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Diet Tracking -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">Diet Tracking</h2>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#logMealModal">
+                + Log Food
+            </button>
+        </div>
+        <div class="card-body">
+            <h5>Today's Food Log</h5>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Meal Type</th>
+                            <th>Food</th>
+                            <th>Quantity</th>
+                            <th>Calories</th>
+                            <th>Protein (g)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in food_logs %}
+                        <tr>
+                            <td>{{ log.created_at.strftime('%I:%M %p') }}</td>
+                            <td>{{ log.meal_type|title }}</td>
+                            <td>
+                                {% for item in log.food_items %}
+                                    {{ item.food_item }}{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% for item in log.food_items %}
+                                    {{ item.quantity }} {{ item.unit }}{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>{{ log.total_calories }}</td>
+                            <td>{{ log.total_protein }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-info">
+                            <td colspan="4"><strong>Remaining for Today</strong></td>
+                            <td><strong>{{ daily_goals.calories|default(2000) - total_intake.calories|default(0) }}</strong></td>
+                            <td><strong>{{ daily_goals.protein|default(150) - total_intake.protein|default(0) }}g</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            
+            {% if daily_goals.calories|default(2000) - total_intake.calories|default(0) <= 500 %}
+            <div class="alert alert-warning">
+                You're close to your daily calorie goal! Consider lighter meals.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Workout Tracking -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">Workout Tracking</h2>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#logWorkoutModal">
+                + Log Workout
+            </button>
+        </div>
+        <div class="card-body">
+            <h5>Today's Workout Log</h5>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Exercise</th>
+                            <th>Duration (min)</th>
+                            <th>Calories Burned</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in workout_logs %}
+                        <tr>
+                            <td>{{ log.created_at.strftime('%I:%M %p') }}</td>
+                            <td>{{ log.exercise_name }}</td>
+                            <td>{{ log.duration }}</td>
+                            <td>{{ log.calories_burned }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-info">
+                            <td colspan="2"><strong>Remaining Minutes</strong></td>
+                            <td colspan="2">
+                                <strong>{{ daily_goals.workout_minutes|default(45) - total_workout.duration|default(0) }}</strong>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            
+            {% if total_workout.duration >= daily_goals.workout_minutes|default(45) %}
+            <div class="alert alert-success">
+                Great job! You've reached your workout goal for today!
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Include modal templates -->
+{% include 'main/modals/log_meal.html' %}
+{% include 'main/modals/log_workout.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+$(document).ready(function() {
+    // Initialize progress chart
+    const ctx = document.getElementById('progressChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+                label: 'Calories',
+                data: [2100, 1950, 2200, 1800, 2300, 2000, {{ total_intake.calories }}],
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Handle meal logging
+    $('#logMealForm').on('submit', function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: '/log-meal',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                meal_type: $('#mealType').val(),
+                food_item: $('#foodItem').val(),
+                portion_size: $('#portionSize').val(),
+                calories: parseInt($('#calories').val()),
+                protein: parseInt($('#protein').val())
+            }),
+            success: function(response) {
+                location.reload();
+            }
+        });
+    });
+
+    // Handle workout logging
+    $('#logWorkoutForm').on('submit', function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: '/log-workout',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                exercise_name: $('#exerciseName').val(),
+                duration: parseInt($('#duration').val()),
+                calories_burned: parseInt($('#caloriesBurned').val())
+            }),
+            success: function(response) {
+                location.reload();
+            }
+        });
+    });
+
+    // Handle water logging
+    $('#logWaterForm').on('submit', function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: '/log-water',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                amount: parseInt($('#waterAmount').val())
+            }),
+            success: function(response) {
+                location.reload();
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,376 @@
+{% extends "base.html" %}
+
+{% block title %}Diet Plan Generator{% endblock %}
+
+{% block content %}
+<style>
+    .form-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        background: rgba(255, 255, 255, 0.98);
+    }
+
+    .form-card .card-header {
+        background: linear-gradient(45deg, #0d6efd, #0099ff);
+        color: white;
+        border-radius: 15px 15px 0 0;
+        border: none;
+        padding: 1.5rem;
+    }
+
+    .form-select {
+        border-radius: 10px;
+        padding: 0.75rem;
+        border-color: #dee2e6;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .form-select:hover {
+        border-color: #0d6efd;
+    }
+
+    .form-select:focus {
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    }
+
+    .form-label {
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+
+    .generate-btn {
+        padding: 0.75rem 2.5rem;
+        font-size: 1.1rem;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        background: linear-gradient(45deg, #0d6efd, #0099ff);
+        border: none;
+        box-shadow: 0 4px 15px rgba(13, 110, 253, 0.2);
+    }
+
+    .generate-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(13, 110, 253, 0.3);
+    }
+
+    .plan-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .plan-card .card-header {
+        background: linear-gradient(45deg, #28a745, #20c997);
+        color: white;
+        border: none;
+        padding: 1.5rem;
+    }
+
+    .nutritional-goals {
+        background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .meal-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+
+    .meal-card .card-header {
+        background: #f8f9fa;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 1rem 1.5rem;
+    }
+
+    .meal-card .card-body {
+        padding: 1.5rem;
+    }
+
+    .meal-stats {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .ingredient-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .ingredient-list li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .ingredient-list li:last-child {
+        border-bottom: none;
+    }
+</style>
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card form-card">
+                <div class="card-header">
+                    <h2 class="card-title text-center mb-0">Create Your Diet Plan</h2>
+                </div>
+                <div class="card-body p-4">
+                    <form id="dietForm" action="{{ url_for('diet.generate') }}" method="POST">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label fw-bold" for="day">Day of Week:</label>
+                                    <select class="form-select" id="day" name="day" required>
+                                        <option value="0">Monday</option>
+                                        <option value="1">Tuesday</option>
+                                        <option value="2">Wednesday</option>
+                                        <option value="3">Thursday</option>
+                                        <option value="4">Friday</option>
+                                        <option value="5">Saturday</option>
+                                        <option value="6">Sunday</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label fw-bold" for="goal">Fitness Goal:</label>
+                                    <select class="form-select" id="goal" name="goal" required>
+                                        <option value="weight_loss">Weight Loss</option>
+                                        <option value="muscle_gain">Muscle Gain</option>
+                                        <option value="maintenance">Maintenance</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="form-label fw-bold" for="dietary_restrictions">Dietary Preference:</label>
+                                    <select class="form-select" id="dietary_restrictions" name="dietary_restrictions" required>
+                                        <option value="">Select your dietary preference</option>
+                                        <option value="non-vegetarian">Non-Vegetarian</option>
+                                        <option value="vegetarian">Vegetarian</option>
+                                        <option value="vegan">Vegan</option>
+                                        <option value="pescatarian">Pescatarian</option>
+                                        <option value="keto">Ketogenic</option>
+                                        <option value="paleo">Paleo</option>
+                                        <option value="gluten-free">Gluten-Free</option>
+                                        <option value="dairy-free">Dairy-Free</option>
+                                    </select>
+                                    <div class="form-text text-muted mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Your meal plan will be customized based on your dietary preference
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 text-center mt-4">
+                                <button type="submit" class="btn btn-primary generate-btn" id="generateBtn">
+                                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                    <i class="fas fa-magic me-2"></i>Generate Diet Plan
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="planDisplay" class="mt-4" style="display: none;">
+                <div class="card plan-card">
+                    <div class="card-header">
+                        <h3 class="card-title text-center mb-0">Your Personalized Diet Plan</h3>
+                    </div>
+                    <div class="card-body p-4">
+                        <div id="planContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dietForm = document.getElementById('dietForm');
+    const generateBtn = document.getElementById('generateBtn');
+    const planDisplay = document.getElementById('planDisplay');
+    const planContent = document.getElementById('planContent');
+
+    function showLoading(button) {
+        const spinner = button.querySelector('.spinner-border');
+        spinner.classList.remove('d-none');
+        button.disabled = true;
+    }
+
+    function hideLoading(button) {
+        const spinner = button.querySelector('.spinner-border');
+        spinner.classList.add('d-none');
+        button.disabled = false;
+    }
+
+    function displayPlan(plan) {
+        if (!plan || !plan.meals) {
+            planContent.innerHTML = '<div class="alert alert-danger">Failed to generate diet plan. Please try again.</div>';
+            planDisplay.style.display = 'block';
+            return;
+        }
+
+        let html = `
+            <div class="nutritional-goals">
+                <h4 class="mb-3">Daily Targets</h4>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5>Calories</h5>
+                                <h3>${plan.daily_calories}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5>Protein</h5>
+                                <h3>${plan.daily_protein}g</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        plan.meals.forEach(meal => {
+            html += `
+                <div class="meal-card">
+                    <div class="card-header">
+                        <h4 class="mb-0">${meal.meal_type}</h4>
+                        <small class="text-muted">Suggested time: ${meal.suggested_time}</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="meal-stats">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <strong>Total Calories:</strong> ${meal.foods.reduce((sum, food) => sum + food.calories, 0)}
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Total Protein:</strong> ${meal.foods.reduce((sum, food) => sum + food.protein, 0).toFixed(1)}g
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Total Carbs:</strong> ${meal.foods.reduce((sum, food) => sum + food.carbs, 0).toFixed(1)}g
+                                </div>
+                            </div>
+                        </div>
+                        <div class="food-list">
+                            ${meal.foods.map(food => `
+                                <div class="food-item mb-3">
+                                    <h5>${food.name}</h5>
+                                    <p class="mb-1"><strong>Portion:</strong> ${food.portion}</p>
+                                    <p class="mb-1"><strong>Calories:</strong> ${food.calories}</p>
+                                    <p class="mb-1"><strong>Protein:</strong> ${food.protein}g</p>
+                                    <p class="mb-1"><strong>Carbs:</strong> ${food.carbs}g</p>
+                                    <p class="mb-1"><strong>Fats:</strong> ${food.fats}g</p>
+                                    <p class="mb-1"><strong>Preparation:</strong> ${food.preparation}</p>
+                                    ${food.key_nutrients ? `<p class="mb-1"><strong>Key Nutrients:</strong> ${food.key_nutrients.join(', ')}</p>` : ''}
+                                    ${food.alternatives && food.alternatives.length > 0 ? `
+                                        <div class="alternatives mt-2">
+                                            <strong>Alternatives:</strong>
+                                            <ul class="list-unstyled">
+                                                ${food.alternatives.map(alt => `
+                                                    <li>${alt.name} (${alt.portion}) - ${alt.calories} calories</li>
+                                                `).join('')}
+                                            </ul>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                        ${meal.notes ? `<div class="meal-notes mt-3"><strong>Notes:</strong> ${meal.notes}</div>` : ''}
+                    </div>
+                </div>
+            `;
+        });
+
+        if (plan.special_instructions) {
+            html += `
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h5>Special Instructions</h5>
+                        <p>${plan.special_instructions}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        if (plan.meal_prep_tips) {
+            html += `
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h5>Meal Prep Tips</h5>
+                        <p>${plan.meal_prep_tips}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        if (plan.storage_guidelines) {
+            html += `
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h5>Storage Guidelines</h5>
+                        <p>${plan.storage_guidelines}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        planContent.innerHTML = html;
+        planDisplay.style.display = 'block';
+    }
+
+    dietForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        showLoading(generateBtn);
+
+        try {
+            const formData = new FormData(dietForm);
+            const data = {
+                day: formData.get('day'),
+                meal_type: formData.get('meal_type'),
+                dietary_restrictions: formData.get('dietary_restrictions'),
+                goal: formData.get('goal')
+            };
+
+            const response = await fetch(dietForm.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to generate diet plan');
+            }
+
+            const result = await response.json();
+            if (result.error) {
+                throw new Error(result.error);
+            }
+
+            displayPlan(result);
+        } catch (error) {
+            planContent.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+            planDisplay.style.display = 'block';
+        } finally {
+            hideLoading(generateBtn);
+        }
+    });
+});
+</script>
+{% endblock %} 
